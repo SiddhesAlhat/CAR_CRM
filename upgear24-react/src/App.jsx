@@ -21,7 +21,7 @@ const nav=[
  {to:'/products',label:'Products',icon:ShoppingBag},
  {to:'/live-jobs',label:'Live Jobs',icon:Flame},
  {to:'/sales',label:'My Sales',icon:FileText},
- {to:'/quotes',label:'Quotes',icon:FileText},
+ {to:'/quotes',label:'Quotes / Tenders',icon:FileText},
  {to:'/accounts',label:'Accounts',icon:Monitor},
  {to:'/inventory',label:'Inventory',icon:Box},
  {to:'/staff',label:'Staff',icon:Users},

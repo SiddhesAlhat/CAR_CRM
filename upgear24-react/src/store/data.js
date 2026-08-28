@@ -11,7 +11,7 @@ export const seedJobs = [
 ]
 
 export const seedQuotes = [
- {id:'QT-6976', date:'25 Aug 2026', time:'07:08 am', customer:'B', phone:'9158303398', vehicle:'Swift vdi', plate:'MH12RK1234', amount:10000, createdBy:'New Shop Testing', status:'Transferred'}
+ {id:'QT-6976', date:'25 Aug 2026', time:'07:08 am', customer:'B', phone:'9158303398', vehicle:'Swift vdi', plate:'MH12RK1234', amount:10000, createdBy:'New Shop Testing', status:'Transferred', items:[{id:1,name:'Fog lamp',sku:'1234',qty:1,price:10000}]}
 ]
 
 export const seedStaff = [];
@@ -30,3 +30,49 @@ export function getData(key){return JSON.parse(localStorage.getItem('upgear_'+ke
 export function setData(key,value){localStorage.setItem('upgear_'+key, JSON.stringify(value))}
 export function getShop(){return JSON.parse(localStorage.getItem('upgear_shop') || '{}')}
 export function setShop(value){localStorage.setItem('upgear_shop', JSON.stringify(value))}
+
+function pad(n){return String(n).padStart(2,'0')}
+export function nowStamp(){
+  const d=new Date()
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const h=d.getHours()
+  const am=h>=12?'pm':'am'
+  const hr=((h+11)%12)+1
+  return {
+    date:`${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()}`,
+    time:`${pad(hr)}:${pad(d.getMinutes())} ${am}`
+  }
+}
+
+export function nextId(key,prefix){
+  const rows=getData(key)
+  const nums=rows.map(r=>{
+    const raw=String(r.id||r.number||'').replace(/\D/g,'')
+    return Number(raw.slice(-4))||0
+  })
+  const n=Math.max(1000,...nums)+1
+  return `${prefix}-${n}`
+}
+
+export function upsertCustomer({name,phone,vehicle,plate,amount}){
+  const customers=getData('customers')
+  const idx=customers.findIndex(c=>c.phone===phone)
+  const vehicleRow={brand:'',model:vehicle||'',year:'',plate:plate||''}
+  if(idx>=0){
+    const prev=customers[idx]
+    const vehicles=prev.vehicles||[]
+    const has=vehicles.some(v=>v.plate===plate)
+    customers[idx]={
+      ...prev,
+      name:name||prev.name,
+      total:(prev.total||0)+Number(amount||0),
+      vehicles:has?vehicles:[...vehicles,vehicleRow]
+    }
+  }else{
+    customers.push({
+      id:Date.now(),name,phone,email:'',address:'',
+      vehicles:[vehicleRow],total:Number(amount||0),outstanding:0
+    })
+  }
+  setData('customers',customers)
+}
